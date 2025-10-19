@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html class="no-js" lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>Cryptojacking Detection - Upload CSV</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='assets/images/favicon.svg') }}?v=2.0" />
+
+    <!-- ========================= CSS here ========================= -->
+    <link rel="stylesheet" href={{ url_for('static', filename='assets/css/bootstrap.min.css') }} />
+    <link rel="stylesheet" href={{ url_for('static', filename='assets/css/LineIcons.3.0.css') }} />
+    <link rel="stylesheet" href={{ url_for('static', filename='assets/css/animate.css') }} />
+    <link rel="stylesheet" href={{ url_for('static', filename='assets/css/tiny-slider.css') }} />
+    <link rel="stylesheet" href={{ url_for('static', filename='assets/css/glightbox.min.css') }} />
+    <link rel="stylesheet" href={{ url_for('static', filename='assets/css/main.css') }} />
+
+</head>
+
+<body>
+    <!-- Start Header Area -->
+    <header class="header navbar-area">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-12">
+                    <div class="nav-inner">
+                        <!-- Start Navbar -->
+                        <nav class="navbar navbar-expand-lg">
+                            <a class="navbar-brand" href="{{ url_for('home') }}">
+                                <img src="{{ url_for('static', filename='assets/images/logo/cryptosniff-white-logo.svg') }}" alt="#">
+                            </a>
+                            <button class="navbar-toggler mobile-menu-btn" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                                aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                                <span class="toggler-icon"></span>
+                            </button>
+                            <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                                <ul id="nav" class="navbar-nav ms-auto">
+                                    <li class="nav-item">
+                                        <a href="{{ url_for('home') }}" aria-label="Toggle navigation">Home</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ url_for('about') }}" aria-label="Toggle navigation">About</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dd-menu collapsed active" href="javascript:void(0)" data-bs-toggle="collapse"
+                                            data-bs-target="#submenu-1-1" aria-controls="navbarSupportedContent"
+                                            aria-expanded="false" aria-label="Toggle navigation">Detection</a>
+                                        <ul class="sub-menu collapse" id="submenu-1-1">
+                                            <li class="nav-item"><a href="{{ url_for('detection') }}" class="active">CSV Upload</a></li>
+                                            <li class="nav-item"><a href="{{ url_for('form_detection') }}">Form Detection</a></li>
+                                        </ul>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ url_for('home') }}#faq" aria-label="Toggle navigation">FAQ</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ url_for('home') }}#footer" aria-label="Toggle navigation">Contact</a>
+                                    </li>
+                                </ul>
+                            </div> <!-- navbar collapse -->
+                        </nav>
+                        <!-- End Navbar -->
+                    </div>
+                </div>
+            </div> <!-- row -->
+        </div> <!-- container -->
+    </header>
+    <!-- End Header Area -->
+
+    <!-- Start Detection Area -->
+    <section class="hero-area" style="padding: 120px 0;">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-12">
+                    <div class="detection-content text-center">
+                        <h1 class="wow fadeInUp" data-wow-delay=".2s">Cryptojacking Detection</h1>
+                        <p class="wow fadeInUp" data-wow-delay=".4s">Upload your CSV file to detect potential cryptojacking activities</p>
+                        
+                        <!-- File Upload Form -->
+                        <div class="upload-section wow fadeInUp" data-wow-delay=".6s" style="margin-top: 50px;">
+                            <form method="POST" enctype="multipart/form-data" class="upload-form">
+                                <div class="file-upload-wrapper text-center">
+                                    <input type="file" name="csv_file" id="csv_file" accept=".csv" required class="file-input">
+                                    <label for="csv_file" class="file-label">
+                                        <i class="lni lni-cloud-upload"></i>
+                                        <span class="file-text">Choose CSV file or drag & drop</span>
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn detect-btn" style="margin-top: 30px;">
+                                    <i class="lni lni-search-alt"></i> Detect Cryptojacking
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Results Section -->
+                        {% if result %}
+                        <div class="results-section wow fadeInUp" data-wow-delay=".8s" style="margin-top: 50px;">
+                            <div class="result-card">
+                                <h3>Detection Results</h3>
+                                <div class="result-stats">
+                                    <div class="stat-item">
+                                        <h4>{{ result.total_samples }}</h4>
+                                        <p>Total Samples</p>
+                                    </div>
+                                    <div class="stat-item">
+                                        <h4>{{ result.cryptojacking_detected }}</h4>
+                                        <p>Cryptojacking Detected</p>
+                                    </div>
+                                    <div class="stat-item">
+                                        <h4>{{ result.normal_samples }}</h4>
+                                        <p>Normal Samples</p>
+                                    </div>
+                                </div>
+                                {% if result.cryptojacking_detected > 0 %}
+                                <div class="alert-danger">
+                                    ⚠️ Cryptojacking activity detected! Please review your system immediately.
+                                </div>
+                                {% else %}
+                                <div class="alert-success">
+                                    ✅ No cryptojacking activity detected. Your system appears clean.
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if error %}
+                        <div class="error-section" style="margin-top: 30px;">
+                            <div class="alert-danger">{{ error }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End Detection Area -->
+
+    <!-- Start Footer Area -->
+    <footer id="footer" class="footer section">
+        <!-- Start Footer Top -->
+        <div class="footer-top">
+            <div class="container">
+                <div class="inner-content">
+                    <div class="row">
+                        <div class="col-lg-4 col-md-6 col-12">
+                            <!-- Single Widget -->
+                            <div class="single-footer f-about">
+                                <div class="logo">
+                                    <a href="{{ url_for('home') }}">
+                                        <img src="{{ url_for('static', filename='assets/images/logo/cryptosniff-white-logo.svg') }}" alt="#">
+                                    </a>
+                                </div>
+                                <p>Advanced cryptojacking detection using machine learning algorithms to protect systems worldwide.</p>
+                                <h4 class="social-title">Follow Us On:</h4>
+                                <ul class="social">
+                                    <li><a href="https://github.com/Pleiades-M45"><i class="lni lni-facebook-filled"></i></a></li>
+                                    <li><a href="https://github.com/Pleiades-M45"><i class="lni lni-instagram"></i></a></li>
+                                    <li><a href="https://github.com/Pleiades-M45"><i class="lni lni-twitter-original"></i></a></li>
+                                    <li><a href="https://github.com/Pleiades-M45"><i class="lni lni-linkedin-original"></i></a></li>
+                                    <li><a href="https://github.com/Pleiades-M45"><i class="lni lni-pinterest"></i></a></li>
+                                    <li><a href="https://github.com/Pleiades-M45"><i class="lni lni-youtube"></i></a></li>
+                                </ul>
+                            </div>
+                            <!-- End Single Widget -->
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-12">
+                            <!-- Single Widget -->
+                            <div class="single-footer newsletter">
+                                <h3>Support</h3>
+                                <p>Need help or found an issue? We're here to assist you.</p>
+                                <div class="support-links">
+                                    <a href="{{ url_for('home') }}#faq" class="support-link">
+                                        <i class="lni lni-question-circle"></i> FAQ & Help
+                                    </a>
+                                    <a href="https://github.com/Pleiades-M45" class="support-link">
+                                        <i class="lni lni-bug"></i> Report Issue
+                                    </a>
+                                </div>
+                            </div>
+                            <!-- End Single Widget -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/ End Footer Top -->
+        <!-- Start Copyright Area -->
+        <div class="copyright-area">
+            <div class="container">
+                <div class="inner-content">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-12">
+                            <p class="copyright-text">© 2025 CryptoSniff - All Rights Reserved</p>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-12">
+                            <p class="copyright-owner">Designed and Developed by <a href="https://github.com/Pleiades-M45"
+                                    rel="nofollow" target="_blank">Orca</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Copyright Area -->
+    </footer>
+    <!--/ End Footer Area -->
+
+    <!-- ========================= scroll-top ========================= -->
+    <a href="#" class="scroll-top">
+        <i class="lni lni-chevron-up"></i>
+    </a>
+
+    <!-- ========================= JS here ========================= -->
+    <script src={{ url_for('static', filename="assets/js/bootstrap.min.js") }}></script>
+    <script src={{ url_for('static', filename="assets/js/wow.min.js") }}></script>
+    <script src={{ url_for('static', filename="assets/js/main.js") }}></script>
+    
+    <style>
+        .file-upload-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            width: 100%;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-label {
+            display: inline-block;
+            padding: 40px 60px;
+            border: 3px dashed #00ff41;
+            border-radius: 15px;
+            background: rgba(0, 255, 65, 0.1);
+            color: #00ff41;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 400px;
+        }
+        
+        .file-label:hover {
+            background: rgba(0, 255, 65, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+        
+        .file-label i {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 15px;
+        }
+        
+        .file-text {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .detect-btn {
+            padding: 15px 40px !important;
+            font-size: 18px !important;
+            background: linear-gradient(135deg, #00ff41, #00cc33) !important;
+            border: none !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            box-shadow: 0 5px 15px rgba(0, 255, 65, 0.3) !important;
+            transition: all 0.3s ease !important;
+            border-radius: 10px !important;
+        }
+        
+        .detect-btn:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(0, 255, 65, 0.4) !important;
+            background: linear-gradient(135deg, #00cc33, #00ff41) !important;
+            color: #ffffff !important;
+        }
+        
+        .result-card {
+            background: rgba(0, 255, 65, 0.1);
+            border: 2px solid #00ff41;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        
+        .result-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+            margin: 10px;
+        }
+        
+        .stat-item h4 {
+            font-size: 32px;
+            color: #00ff41;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+        
+        .stat-item p {
+            color: #a0ffa0;
+            font-size: 14px;
+        }
+        
+        .alert-danger, .alert-success {
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .alert-danger {
+            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid #ff4444;
+            color: #ff6666;
+        }
+        
+        .alert-success {
+            background: rgba(0, 255, 65, 0.1);
+            border: 2px solid #00ff41;
+            color: #00ff41;
+        }
+        
+        .features-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .features-list li {
+            padding: 10px 0;
+            color: #a0ffa0;
+            font-size: 16px;
+        }
+        
+        /* Navbar Active States - Green Theme */
+        .navbar-nav .nav-item a.active,
+        .header .navbar .navbar-nav .nav-item a.active {
+            color: #00ff41 !important;
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.3) !important;
+        }
+        
+        .sticky .navbar .navbar-nav .nav-item a.active {
+            color: #00ff41 !important;
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.3) !important;
+        }
+        
+        .header .navbar .navbar-nav .nav-item .sub-menu a.active,
+        .sticky .navbar .navbar-nav .nav-item .sub-menu a.active {
+            color: #00ff41 !important;
+            background-color: rgba(0, 255, 65, 0.2) !important;
+        }
+        
+        .detection-content h1 {
+            color: #ffffff !important;
+        }
+        
+        .result-card h3 {
+            color: #ffffff !important;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .support-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .support-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 8px;
+            color: #00ff41 !important;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .support-link:hover {
+            background: rgba(0, 255, 65, 0.2);
+            border-color: #00ff41;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 10px rgba(0, 255, 65, 0.2);
+            color: #00ff41 !important;
+        }
+        
+        .support-link i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+    </style>
+    
+    <script>
+    // Fix logo switching for Flask static URLs
+    document.addEventListener('DOMContentLoaded', function() {
+        // Scroll to top functionality
+        document.querySelector('.scroll-top').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        const logo = document.querySelector('.navbar-brand img');
+        if (logo) {
+            const whiteLogoUrl = logo.src;
+            const darkLogoUrl = whiteLogoUrl.replace('cryptosniff-white-logo.svg', 'cryptosniff-logo.svg');
+            
+            window.onscroll = function () {
+                var header_navbar = document.querySelector(".navbar-area");
+                var sticky = header_navbar.offsetTop;
+
+                if (window.pageYOffset > sticky) {
+                  header_navbar.classList.add("sticky");
+                  logo.src = darkLogoUrl;
+                } else {
+                  header_navbar.classList.remove("sticky");
+                  logo.src = whiteLogoUrl;
+                }
+
+                var backToTo = document.querySelector(".scroll-top");
+                if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+                    backToTo.style.display = "flex";
+                } else {
+                    backToTo.style.display = "none";
+                }
+            };
+        }
+        
+        // File upload enhancement
+        const fileInput = document.getElementById('csv_file');
+        const fileLabel = document.querySelector('.file-label');
+        const fileText = document.querySelector('.file-text');
+        
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                fileText.textContent = 'File selected: ' + this.files[0].name;
+                fileLabel.style.background = 'rgba(0, 255, 65, 0.2)';
+            }
+        });
+    });
+    </script>
+</body>
+
+</html>
