@@ -90,7 +90,8 @@
                                         <div class="form-group">
                                             <label for="io_data_operations">I/O Data Operations</label>
                                             <input type="number" step="any" name="io_data_operations" id="io_data_operations" 
-                                                   placeholder="Speed of read/write I/O operations" class="form-control" required>
+                                                   placeholder="Speed of read/write I/O operations" class="form-control" required
+                                                   value="{{ form_data.io_data_operations if form_data else '' }}">
                                             <small class="form-text">Speed at which the process is issuing read and write I/O operations</small>
                                         </div>
                                     </div>
@@ -100,7 +101,8 @@
                                         <div class="form-group">
                                             <label for="io_data_bytes">I/O Data Bytes</label>
                                             <input type="number" step="any" name="io_data_bytes" id="io_data_bytes" 
-                                                   placeholder="Bytes per I/O operation" class="form-control" required>
+                                                   placeholder="Bytes per I/O operation" class="form-control" required
+                                                   value="{{ form_data.io_data_bytes if form_data else '' }}">
                                             <small class="form-text">Speed at which the process is reading and writing bytes in I/O operations</small>
                                         </div>
                                     </div>
@@ -110,7 +112,8 @@
                                         <div class="form-group">
                                             <label for="number_of_subprocesses">Number of Subprocesses</label>
                                             <input type="number" step="any" name="number_of_subprocesses" id="number_of_subprocesses" 
-                                                   placeholder="Active subprocess count" class="form-control" required>
+                                                   placeholder="Active subprocess count" class="form-control" required
+                                                   value="{{ form_data.number_of_subprocesses if form_data else '' }}">
                                             <small class="form-text">Number of sub-processes that are currently active in a parent process</small>
                                         </div>
                                     </div>
@@ -120,7 +123,8 @@
                                         <div class="form-group">
                                             <label for="time_on_processor">Time on Processor</label>
                                             <input type="number" step="any" name="time_on_processor" id="time_on_processor" 
-                                                   placeholder="Total processing time (seconds)" class="form-control" required>
+                                                   placeholder="Total processing time (seconds)" class="form-control" required
+                                                   value="{{ form_data.time_on_processor if form_data else '' }}">
                                             <small class="form-text">The total time, in seconds, that a process has been running</small>
                                         </div>
                                     </div>
@@ -130,7 +134,8 @@
                                         <div class="form-group">
                                             <label for="disk_reading_sec">Disk Reading/sec</label>
                                             <input type="number" step="any" name="disk_reading_sec" id="disk_reading_sec" 
-                                                   placeholder="Disk read operations per second" class="form-control" required>
+                                                   placeholder="Disk read operations per second" class="form-control" required
+                                                   value="{{ form_data.disk_reading_sec if form_data else '' }}">
                                             <small class="form-text">Speed of disk reading operations</small>
                                         </div>
                                     </div>
@@ -140,7 +145,8 @@
                                         <div class="form-group">
                                             <label for="disc_writing_sec">Disc Writing/sec</label>
                                             <input type="number" step="any" name="disc_writing_sec" id="disc_writing_sec" 
-                                                   placeholder="Disk write operations per second" class="form-control" required>
+                                                   placeholder="Disk write operations per second" class="form-control" required
+                                                   value="{{ form_data.disc_writing_sec if form_data else '' }}">
                                             <small class="form-text">Speed of writing operations to disk</small>
                                         </div>
                                     </div>
@@ -150,7 +156,8 @@
                                         <div class="form-group">
                                             <label for="bytes_sent">Bytes Sent</label>
                                             <input type="number" step="any" name="bytes_sent" id="bytes_sent" 
-                                                   placeholder="HTTP bytes sent rate" class="form-control" required>
+                                                   placeholder="HTTP bytes sent rate" class="form-control" required
+                                                   value="{{ form_data.bytes_sent if form_data else '' }}">
                                             <small class="form-text">The rate at which bytes leave the browser's HTTP requests</small>
                                         </div>
                                     </div>
@@ -160,7 +167,8 @@
                                         <div class="form-group">
                                             <label for="received_bytes_http">Received Bytes (HTTP)</label>
                                             <input type="number" step="any" name="received_bytes_http" id="received_bytes_http" 
-                                                   placeholder="HTTP bytes received rate" class="form-control" required>
+                                                   placeholder="HTTP bytes received rate" class="form-control" required
+                                                   value="{{ form_data.received_bytes_http if form_data else '' }}">
                                             <small class="form-text">Speed of bytes arriving to the browser's HTTP responses</small>
                                         </div>
                                     </div>
@@ -170,7 +178,8 @@
                                         <div class="form-group">
                                             <label for="network_packets_sent">Network Packets Sent</label>
                                             <input type="number" step="any" name="network_packets_sent" id="network_packets_sent" 
-                                                   placeholder="TCP packets sent rate" class="form-control" required>
+                                                   placeholder="TCP packets sent rate" class="form-control" required
+                                                   value="{{ form_data.network_packets_sent if form_data else '' }}">
                                             <small class="form-text">Speed of sending packets in the TCP protocol</small>
                                         </div>
                                     </div>
@@ -180,7 +189,8 @@
                                         <div class="form-group">
                                             <label for="network_packets_received">Network Packets Received</label>
                                             <input type="number" step="any" name="network_packets_received" id="network_packets_received" 
-                                                   placeholder="TCP packets received rate" class="form-control" required>
+                                                   placeholder="TCP packets received rate" class="form-control" required
+                                                   value="{{ form_data.network_packets_received if form_data else '' }}">
                                             <small class="form-text">Packet reception speed over the TCP protocol</small>
                                         </div>
                                     </div>
@@ -190,7 +200,8 @@
                                         <div class="form-group">
                                             <label for="pages_read_sec">Pages Read/sec</label>
                                             <input type="number" step="any" name="pages_read_sec" id="pages_read_sec" 
-                                                   placeholder="Page reads per second" class="form-control" required>
+                                                   placeholder="Page reads per second" class="form-control" required
+                                                   value="{{ form_data.pages_read_sec if form_data else '' }}">
                                             <small class="form-text">Speed rate at which the disk was read in order to resolve hard page errors</small>
                                         </div>
                                     </div>
@@ -200,7 +211,8 @@
                                         <div class="form-group">
                                             <label for="pages_input_sec">Pages Input/sec</label>
                                             <input type="number" step="any" name="pages_input_sec" id="pages_input_sec" 
-                                                   placeholder="Page inputs per second" class="form-control" required>
+                                                   placeholder="Page inputs per second" class="form-control" required
+                                                   value="{{ form_data.pages_input_sec if form_data else '' }}">
                                             <small class="form-text">Speed at which pages are written to disk to free up space in physical memory</small>
                                         </div>
                                     </div>
@@ -210,7 +222,8 @@
                                         <div class="form-group">
                                             <label for="page_errors_sec">Page Errors/sec</label>
                                             <input type="number" step="any" name="page_errors_sec" id="page_errors_sec" 
-                                                   placeholder="Page faults per second" class="form-control" required>
+                                                   placeholder="Page faults per second" class="form-control" required
+                                                   value="{{ form_data.page_errors_sec if form_data else '' }}">
                                             <small class="form-text">This is the average number of pages with faults per second</small>
                                         </div>
                                     </div>
@@ -220,7 +233,8 @@
                                         <div class="form-group">
                                             <label for="confirmed_byte_radius">Confirmed Byte Radius</label>
                                             <input type="number" step="any" name="confirmed_byte_radius" id="confirmed_byte_radius" 
-                                                   placeholder="Memory commitment ratio" class="form-control" required>
+                                                   placeholder="Memory commitment ratio" class="form-control" required
+                                                   value="{{ form_data.confirmed_byte_radius if form_data else '' }}">
                                             <small class="form-text">The ratio of Memory/Bytes committed and Memory/Confirmation limit</small>
                                         </div>
                                     </div>
@@ -258,7 +272,7 @@
                                 </div>
                                 {% else %}
                                 <div class="alert-success">
-                                    ✅ Normal system behavior detected. No cryptojacking threats identified.
+                                    Normal system behavior detected. No cryptojacking threats identified.
                                 </div>
                                 {% endif %}
                             </div>

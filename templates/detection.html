@@ -8,8 +8,13 @@
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='assets/images/favicon.svg') }}?v=2.0" />
+    
+    <!-- DNS Prefetch for faster external resources -->
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
     <!-- ========================= CSS here ========================= -->
+    <link rel="preload" href={{ url_for('static', filename='assets/css/bootstrap.min.css') }} as="style" />
     <link rel="stylesheet" href={{ url_for('static', filename='assets/css/bootstrap.min.css') }} />
     <link rel="stylesheet" href={{ url_for('static', filename='assets/css/LineIcons.3.0.css') }} />
     <link rel="stylesheet" href={{ url_for('static', filename='assets/css/animate.css') }} />
@@ -20,6 +25,17 @@
 </head>
 
 <body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="preloader-inner">
+            <div class="preloader-icon">
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+    <!-- /End Preloader -->
+
     <!-- Start Header Area -->
     <header class="header navbar-area">
         <div class="container">
@@ -88,7 +104,7 @@
                                     <input type="file" name="csv_file" id="csv_file" accept=".csv" required class="file-input">
                                     <label for="csv_file" class="file-label">
                                         <i class="lni lni-cloud-upload"></i>
-                                        <span class="file-text">Choose CSV file or drag & drop</span>
+                                        <span class="file-text">{% if result %}{{ result.filename }}{% else %}Choose CSV file or drag & drop{% endif %}</span>
                                     </label>
                                 </div>
                                 <button type="submit" class="btn detect-btn" style="margin-top: 30px;">
@@ -116,6 +132,7 @@
                                         <p>Normal Samples</p>
                                     </div>
                                 </div>
+                                
                                 {% if result.cryptojacking_detected > 0 %}
                                 <div class="alert-danger">
                                     ⚠️ Cryptojacking activity detected! Please review your system immediately.
@@ -125,6 +142,102 @@
                                     ✅ No cryptojacking activity detected. Your system appears clean.
                                 </div>
                                 {% endif %}
+                                
+                                <!-- Detailed Predictions Table -->
+                                <div class="detailed-predictions" style="margin-top: 40px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                        <h4 style="color: #00ff41; margin: 0;">Detailed Predictions ({{ result.total_samples }} rows)</h4>
+                                        <button onclick="downloadResults()" class="btn" style="padding: 10px 20px; background: linear-gradient(135deg, #00ff41, #00cc33); border: none; color: #ffffff; font-weight: 600; border-radius: 8px; cursor: pointer;">
+                                            <i class="lni lni-download"></i> Download Results
+                                        </button>
+                                    </div>
+                                    <div style="overflow-x: auto; max-height: 600px; overflow-y: auto; border: 2px solid #00ff41; border-radius: 10px; will-change: scroll-position; contain: layout style paint;">
+                                        <table id="resultsTable" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                                            <thead style="position: sticky; top: 0; background: #0a0e27; z-index: 10;">
+                                                <tr style="border-bottom: 2px solid #00ff41;">
+                                                    <th style="padding: 10px; text-align: center; color: #00ff41; min-width: 60px;">Row #</th>
+                                                    <th style="padding: 10px; text-align: center; color: #00ff41; min-width: 120px;">Prediction</th>
+                                                    <th style="padding: 10px; text-align: center; color: #00ff41; min-width: 100px;">Confidence</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 150px;">I/O Data Operations</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 130px;">I/O Data Bytes</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 150px;">Subprocesses</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 150px;">Time on Processor</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 130px;">Disk Reading/s</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 130px;">Disk Writing/s</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 100px;">Bytes Sent</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 140px;">Received Bytes</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 130px;">Packets Sent</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 140px;">Packets Received</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 120px;">Pages Read/s</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 120px;">Pages Input/s</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 120px;">Page Errors/s</th>
+                                                    <th style="padding: 10px; text-align: left; color: #00ff41; min-width: 150px;">Byte Radius</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for pred in result.detailed_predictions %}
+                                                <tr style="border-bottom: 1px solid rgba(0, 255, 65, 0.2); {% if pred.prediction == 'Cryptojacking' %}background: rgba(255, 68, 68, 0.1);{% endif %}">
+                                                    <td style="padding: 10px; text-align: center; color: #ffffff;">{{ pred.row_number }}</td>
+                                                    <td style="padding: 10px; text-align: center; {% if pred.prediction == 'Cryptojacking' %}color: #ff6666; font-weight: bold;{% else %}color: #00ff41;{% endif %}">
+                                                        {{ pred.prediction }}
+                                                    </td>
+                                                    <td style="padding: 10px; text-align: center; color: #a0ffa0;">{{ pred.confidence }}%</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['I/O Data Operations']) }}</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['I/O Data Bytes']) }}</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['Number of subprocesses']) }}</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['Time on processor']) }}</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['Disk Reading/sec']) }}</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['Disc Writing/sec']) }}</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['Bytes Sent']) }}</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['Received Bytes (HTTP)']) }}</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['Network packets sent']) }}</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['Network packets received']) }}</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['Pages Read/sec']) }}</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['Pages Input/sec']) }}</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['Page Errors/sec']) }}</td>
+                                                    <td style="padding: 10px; color: #a0ffa0;">{{ "%.2f"|format(pred.data['Confirmed byte radius']) }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <!-- Pie Chart Visualization -->
+                                <div class="chart-container" style="margin: 40px auto 30px; max-width: 400px;">
+                                    <canvas id="detectionChart"></canvas>
+                                </div>
+                                
+                                <!-- Summary Breakdown Table -->
+                                <div class="breakdown-table" style="margin-top: 30px;">
+                                    <h4 style="color: #00ff41; margin-bottom: 20px;">Summary</h4>
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <thead>
+                                            <tr style="border-bottom: 2px solid #00ff41;">
+                                                <th style="padding: 15px; text-align: center; color: #00ff41;">Category</th>
+                                                <th style="padding: 15px; text-align: center; color: #00ff41;">Count</th>
+                                                <th style="padding: 15px; text-align: center; color: #00ff41;">Percentage</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr style="border-bottom: 1px solid rgba(0, 255, 65, 0.3);">
+                                                <td style="padding: 15px; text-align: center; color: #a0ffa0;">Normal Samples</td>
+                                                <td style="padding: 15px; text-align: center; color: #ffffff;">{{ result.normal_samples }}</td>
+                                                <td style="padding: 15px; text-align: center; color: #00ff41;">{{ result.normal_percentage }}%</td>
+                                            </tr>
+                                            <tr style="border-bottom: 1px solid rgba(0, 255, 65, 0.3);">
+                                                <td style="padding: 15px; text-align: center; color: #ff6666;">Cryptojacking Detected</td>
+                                                <td style="padding: 15px; text-align: center; color: #ffffff;">{{ result.cryptojacking_detected }}</td>
+                                                <td style="padding: 15px; text-align: center; color: #ff6666;">{{ result.crypto_percentage }}%</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center; color: #00ff41; font-weight: bold;">Total Samples</td>
+                                                <td style="padding: 15px; text-align: center; color: #ffffff; font-weight: bold;">{{ result.total_samples }}</td>
+                                                <td style="padding: 15px; text-align: center; color: #00ff41; font-weight: bold;">100%</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                         {% endif %}
@@ -216,6 +329,9 @@
     </a>
 
     <!-- ========================= JS here ========================= -->
+    {% if result %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" async></script>
+    {% endif %}
     <script src={{ url_for('static', filename="assets/js/bootstrap.min.js") }}></script>
     <script src={{ url_for('static', filename="assets/js/wow.min.js") }}></script>
     <script src={{ url_for('static', filename="assets/js/main.js") }}></script>
@@ -451,13 +567,139 @@
         const fileLabel = document.querySelector('.file-label');
         const fileText = document.querySelector('.file-text');
         
+        // Keep the uploaded filename highlighted if results are shown
+        {% if result %}
+        if (fileLabel) {
+            fileLabel.style.background = 'rgba(0, 255, 65, 0.2)';
+        }
+        {% endif %}
+        
         fileInput.addEventListener('change', function() {
             if (this.files && this.files[0]) {
-                fileText.textContent = 'File selected: ' + this.files[0].name;
+                fileText.textContent = this.files[0].name;
                 fileLabel.style.background = 'rgba(0, 255, 65, 0.2)';
             }
         });
+        
+        // Lazy load pie chart when it becomes visible
+        {% if result %}
+        const chartContainer = document.querySelector('.chart-container');
+        if (chartContainer) {
+            // Create intersection observer for lazy loading
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Wait for Chart.js to load
+                        const initChart = () => {
+                            if (typeof Chart !== 'undefined') {
+                                const ctx = document.getElementById('detectionChart');
+                                if (ctx) {
+                                    new Chart(ctx, {
+                                        type: 'pie',
+                                        data: {
+                                            labels: ['Normal Samples', 'Cryptojacking Detected'],
+                                            datasets: [{
+                                                data: [{{ result.normal_samples }}, {{ result.cryptojacking_detected }}],
+                                                backgroundColor: [
+                                                    'rgba(0, 255, 65, 0.8)',
+                                                    'rgba(255, 68, 68, 0.8)'
+                                                ],
+                                                borderColor: [
+                                                    '#00ff41',
+                                                    '#ff4444'
+                                                ],
+                                                borderWidth: 2
+                                            }]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            plugins: {
+                                                legend: {
+                                                    position: 'bottom',
+                                                    labels: {
+                                                        color: '#00ff41',
+                                                        font: {
+                                                            size: 14,
+                                                            weight: 'bold'
+                                                        },
+                                                        padding: 20
+                                                    }
+                                                },
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function(context) {
+                                                            let label = context.label || '';
+                                                            if (label) {
+                                                                label += ': ';
+                                                            }
+                                                            label += context.parsed + ' samples';
+                                                            const percentage = (context.parsed / {{ result.total_samples }} * 100).toFixed(2);
+                                                            label += ' (' + percentage + '%)';
+                                                            return label;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                }
+                                observer.unobserve(entry.target);
+                            } else {
+                                // Retry after 100ms if Chart.js not loaded yet
+                                setTimeout(initChart, 100);
+                            }
+                        };
+                        initChart();
+                    }
+                });
+            }, { rootMargin: '50px' });
+            
+            observer.observe(chartContainer);
+        }
+        {% endif %}
     });
+    
+    // Download results as CSV
+    function downloadResults() {
+        const table = document.getElementById('resultsTable');
+        let csv = [];
+        
+        // Get headers
+        const headers = [];
+        table.querySelectorAll('thead th').forEach(th => {
+            headers.push(th.textContent.trim());
+        });
+        csv.push(headers.join(','));
+        
+        // Get data rows
+        table.querySelectorAll('tbody tr').forEach(tr => {
+            const row = [];
+            tr.querySelectorAll('td').forEach(td => {
+                // Clean and escape the text
+                let text = td.textContent.trim();
+                // Escape quotes and wrap in quotes if contains comma
+                if (text.includes(',') || text.includes('"') || text.includes('\n')) {
+                    text = '"' + text.replace(/"/g, '""') + '"';
+                }
+                row.push(text);
+            });
+            csv.push(row.join(','));
+        });
+        
+        // Create download
+        const csvContent = csv.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        const filename = 'cryptojacking_detection_results_' + new Date().toISOString().slice(0,10) + '.csv';
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
     </script>
 </body>
 

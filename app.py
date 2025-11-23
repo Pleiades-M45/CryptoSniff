@@ -72,16 +72,40 @@ def detection():
                     
                     # Make predictions using selected features
                     predictions = rf_model.predict(features_selected)
+                    probabilities = rf_model.predict_proba(features_selected)
                     
                     # Calculate results
                     total_samples = len(predictions)
                     cryptojacking_detected = sum(predictions)
                     normal_samples = total_samples - cryptojacking_detected
                     
+                    # Calculate percentages
+                    crypto_percentage = (cryptojacking_detected / total_samples * 100) if total_samples > 0 else 0
+                    normal_percentage = (normal_samples / total_samples * 100) if total_samples > 0 else 0
+                    
+                    # Prepare detailed predictions (all rows)
+                    detailed_predictions = []
+                    
+                    for i in range(total_samples):
+                        row_data = features.iloc[i].to_dict()
+                        pred_label = 'Cryptojacking' if predictions[i] == 1 else 'Normal'
+                        confidence = probabilities[i][predictions[i]] * 100
+                        
+                        detailed_predictions.append({
+                            'row_number': i + 1,
+                            'prediction': pred_label,
+                            'confidence': round(confidence, 2),
+                            'data': row_data
+                        })
+                    
                     result = {
                         'total_samples': total_samples,
                         'cryptojacking_detected': cryptojacking_detected,
-                        'normal_samples': normal_samples
+                        'normal_samples': normal_samples,
+                        'crypto_percentage': round(crypto_percentage, 2),
+                        'normal_percentage': round(normal_percentage, 2),
+                        'detailed_predictions': detailed_predictions,
+                        'filename': file.filename
                     }
                     
                     return render_template("detection.html", result=result)
@@ -152,13 +176,31 @@ def form_detection():
                 # Get confidence score (probability of predicted class)
                 confidence = max(probability) * 100
                 
+                # Prepare form data to send back
+                form_data = {
+                    'io_data_operations': request.form.get('io_data_operations', ''),
+                    'io_data_bytes': request.form.get('io_data_bytes', ''),
+                    'number_of_subprocesses': request.form.get('number_of_subprocesses', ''),
+                    'time_on_processor': request.form.get('time_on_processor', ''),
+                    'disk_reading_sec': request.form.get('disk_reading_sec', ''),
+                    'disc_writing_sec': request.form.get('disc_writing_sec', ''),
+                    'bytes_sent': request.form.get('bytes_sent', ''),
+                    'received_bytes_http': request.form.get('received_bytes_http', ''),
+                    'network_packets_sent': request.form.get('network_packets_sent', ''),
+                    'network_packets_received': request.form.get('network_packets_received', ''),
+                    'pages_read_sec': request.form.get('pages_read_sec', ''),
+                    'pages_input_sec': request.form.get('pages_input_sec', ''),
+                    'page_errors_sec': request.form.get('page_errors_sec', ''),
+                    'confirmed_byte_radius': request.form.get('confirmed_byte_radius', '')
+                }
+                
                 result = {
                     'prediction': 'Cryptojacking Detected' if prediction == 1 else 'Normal Activity',
                     'confidence': round(confidence, 2),
                     'is_threat': prediction == 1
                 }
                 
-                return render_template("form_detection.html", result=result)
+                return render_template("form_detection.html", result=result, form_data=form_data)
             elif rf_model is None:
                 return render_template("form_detection.html", error="Detection model not available")
             elif scaler is None:
